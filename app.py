@@ -1,5 +1,4 @@
 import numpy as np
-
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
@@ -7,29 +6,25 @@ from sqlalchemy import create_engine, func
 import datetime as dt
 from flask import Flask, jsonify
 
-
-#################################################
 # Database Setup
-#################################################
+
 engine = create_engine("sqlite:///resources/hawaii.sqlite")
 
 # reflect an existing database into a new model
 Base = automap_base()
+
 # reflect the tables
 Base.prepare(engine, reflect=True)
 
 # Save reference to the table
 Measurement = Base.classes.measurement
 Station = Base.classes.station
-#################################################
+
 # Flask Setup
-#################################################
 app = Flask(__name__)
 
 
-#################################################
 # Flask Routes
-#################################################
 
 @app.route("/")
 def welcome():
@@ -43,6 +38,29 @@ def welcome():
         f"/api/v1.0/<start>/<end><br/>"
     )
 
+#helper funcs
+# This function called `calc_temps` will accept start date and end date in the format '%Y-%m-%d' 
+# and return the minimum, average, and maximum temperatures for that range of dates
+def calc_temps(from_date, to_date=None):
+    session = Session(engine)
+    if to_date == None:
+        to_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first().date
+
+    """TMIN, TAVG, and TMAX for a list of dates.
+    
+    Args:
+        start_date (string): A date string in the format %Y-%m-%d
+        end_date (string): A date string in the format %Y-%m-%d
+        
+    Returns:
+        TMIN, TAVE, and TMAX
+    """
+    
+    return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= from_date).filter(Measurement.date <= to_date).all()
+
+# function usage example
+#print(calc_temps('2012-02-28', '2012-03-05'))
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
@@ -97,7 +115,7 @@ def tobs():
 
     """query for the dates and temperature observations from a year from the last data point"""
     """Return a JSON list of Temperature Observations (tobs) for the previous year"""
-    # Query all passengers
+    # Query Measurements
     last_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first().date
     start_date = dt.datetime.strptime(last_date, '%Y-%m-%d') - dt.timedelta(days=366)
 
@@ -111,6 +129,52 @@ def tobs():
         station_dict = {}
         station_dict["date"] = date
         station_dict["tobs"] = tobs
+        all_stations.append(station_dict)
+
+    return jsonify(all_stations)
+
+@app.route("/api/v1.0/<start>")
+def start(start):
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+    When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+    When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive."""
+
+    results = calc_temps(start)
+    session.close()
+
+    # Create a dictionary from the row data and append to a list of all_passengers
+    all_stations = []
+    for TMIN, TAVG, TMAX in results:
+        station_dict = {}
+        station_dict["TMIN"] = TMIN
+        station_dict["TAVG"] = TAVG
+        station_dict["TMAX"] = TMAX
+        all_stations.append(station_dict)
+
+    return jsonify(all_stations)
+
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start,end):
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+    When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+    When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive."""
+
+    results = calc_temps(start, end)
+    session.close()
+
+    # Create a dictionary from the row data and append to a list of all_passengers
+    all_stations = []
+    for TMIN, TAVG, TMAX in results:
+        station_dict = {}
+        station_dict["TMIN"] = TMIN
+        station_dict["TAVG"] = TAVG
+        station_dict["TMAX"] = TMAX
         all_stations.append(station_dict)
 
     return jsonify(all_stations)
