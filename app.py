@@ -31,11 +31,11 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end><br/>"
+        f'<a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a></br>'
+        f'<a href="/api/v1.0/stations">/api/v1.0/stations</a></br>'
+        f'<a href="/api/v1.0/tobs">/api/v1.0/tobs</a></br>'
+        f'<a href="/api/v1.0/&ltstart&gt">/api/v1.0/&ltstart&gt</a></br>'
+        f'<a href="/api/v1.0/&ltstart&gt/&ltend&gt">/api/v1.0/&ltstart&gt/&ltend&gt</a></br>'     
     )
 
 #helper funcs
