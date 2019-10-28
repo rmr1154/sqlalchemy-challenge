@@ -34,8 +34,8 @@ def welcome():
         f'<a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a></br>'
         f'<a href="/api/v1.0/stations">/api/v1.0/stations</a></br>'
         f'<a href="/api/v1.0/tobs">/api/v1.0/tobs</a></br>'
-        f'<a href="/api/v1.0/&ltstart&gt">/api/v1.0/&ltstart&gt</a></br>'
-        f'<a href="/api/v1.0/&ltstart&gt/&ltend&gt">/api/v1.0/&ltstart&gt/&ltend&gt</a></br>'     
+        f'<a href="/api/v1.0/<start>">/api/v1.0/&ltstart&gt</a></br>'
+        f'<a href="/api/v1.0/<start>/<end>">/api/v1.0/&ltstart&gt/&ltend&gt</a></br>'     
     )
 
 #helper funcs
