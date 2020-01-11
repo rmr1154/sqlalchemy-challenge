@@ -133,6 +133,7 @@ def tobs():
 
     return jsonify(all_stations)
 
+@app.route("/api/v1.0/<start>/")
 @app.route("/api/v1.0/<start>")
 def start(start):
     # Create our session (link) from Python to the DB
